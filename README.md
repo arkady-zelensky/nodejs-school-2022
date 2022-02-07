@@ -1,4 +1,4 @@
-# Yalantis Node.js school 2022
+# Yalantis Node.js School 2022
 
 ## Lectures
 
