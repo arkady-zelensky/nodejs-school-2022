@@ -57,3 +57,5 @@ The result of invocation:
 
 [tsc CLI options](https://www.typescriptlang.org/docs/handbook/compiler-options.html)
 
+[TypeScript Features to Avoid](https://www.executeprogram.com/blog/typescript-features-to-avoid)
+
