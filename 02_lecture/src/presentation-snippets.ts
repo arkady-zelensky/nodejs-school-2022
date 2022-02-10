@@ -294,3 +294,24 @@ const chunkArray = <TArrayItem>(
 const arrayOfNumberChunks = chunkArray([1, 2, 3, 4, 5], 2);
 
 const arrayOfStringChunks = chunkArray(['a', 'b', 'c', 'd', 'e'], 2);
+
+
+type AppleFruit = {
+  weight: 100,
+  color: string;
+  size: "small" | "large"
+}
+
+type OrangeFruit = {
+  weight: 150,
+  isRipe: boolean;
+  count: number;
+}
+
+function describeFruit(fruit: AppleFruit | OrangeFruit) {
+  console.log(fruit.weight);
+  if ('color' in fruit) {
+    console.log(fruit.color);
+    console.log(fruit.size);
+  }
+}

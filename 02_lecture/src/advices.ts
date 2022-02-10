@@ -38,6 +38,8 @@ const bookTitle1: string = 'Life of Pi';
 const bookTitle2 = 'The Hobbit';
 
 
+
+
 // -------------------------------------------
 // don't use any, use unknown instead
 function logResponseError(response: any) {
@@ -51,6 +53,9 @@ function logResponseError2(response: APIResponse) {
 const apiResponse: unknown = JSON.parse('{"status":400,"error":"Missing required parameter"}');
 logResponseError(apiResponse);
 logResponseError2(apiResponse as APIResponse);
+
+
+
 
 // -------------------------------------------
 // use readonly for immutability
