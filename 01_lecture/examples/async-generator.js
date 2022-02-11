@@ -56,7 +56,7 @@ class Service {
   await repository.insert([{name: 'Petro'}]);
   await repository.insert([{name: 'Petro'}]);
 
-  const dtos = new Array(100).fill(undefined).map(() => ({name: 'Mari ' + randInt()}));
+  const dtos = new Array(100).fill({name: 'Mari ' + randInt()}).map(() => ({name: 'Mari ' + randInt()}));
 
   const service = new Service();
 

@@ -55,7 +55,7 @@ const array1: number[] = [1, 2, 3];
 
 const array2: Array<number> = [1, 2, 3];
 
-const array3: [number, number, number] = [1, 2, 3];
+const array3: [number, boolean, string] = [1, false, 'str'];
 
 // ******************************************
 
@@ -105,7 +105,8 @@ greet1('123');
 
 // **********************************************
 
-type ID = number | string;
+// type ID = number | string | boolean | {name: string};
+type ID = string;
 
 const printId = (id: ID) => {
   console.log('Your ID is: ' + id);
@@ -127,22 +128,22 @@ const printId = (id: ID) => {
 
 // ***********************************************
 
-let obj: any = { x: 0 };
-
-obj.foo();
-obj();
-obj.bar = 100;
-obj = 'hello';
-const n: number = obj;
+// let obj: any = { x: 0 };
+//
+// obj.foo();
+// obj();
+// obj.bar = 100;
+// obj = 'hello';
+// const n: number = obj;
 
 // *********************************************
 
-enum Direction {
-  Up = 1,
-  Down,
-  Left,
-  Right,
-}
+// enum Direction {
+//   Up,
+//   Down,
+//   Left,
+//   Right,
+// }
 
 // *****************************************
 
@@ -151,40 +152,40 @@ interface Point {
   y: number;
 }
 
-enum Direction {
-  UP = 'UP',
-  DOWN = 'DOWN',
-  LEFT = 'LEFT',
-  RIGHT = 'RIGHT',
-}
-
-const move = (currentPoint: Point, direction: Direction): Point => {
-  switch (direction) {
-    case Direction.UP:
-      return {
-        x: currentPoint.x,
-        y: currentPoint.y + 1,
-      };
-
-    case Direction.LEFT:
-      return {
-        x: currentPoint.x - 1,
-        y: currentPoint.y,
-      };
-
-    case Direction.RIGHT:
-      return {
-        x: currentPoint.x + 1,
-        y: currentPoint.y,
-      };
-
-    case Direction.DOWN:
-      return {
-        x: currentPoint.x,
-        y: currentPoint.y - 1,
-      };
-  }
+const Direction = {
+  UP: 'UP',
+  DOWN: 'DOWN',
+  LEFT: 'LEFT',
+  RIGHT: 'RIGHT',
 };
+
+// const move = (currentPoint: Point, direction: Direction): Point => {
+//   switch (direction) {
+//     case Direction.UP:
+//       return {
+//         x: currentPoint.x,
+//         y: currentPoint.y + 1,
+//       };
+//
+//     case Direction.LEFT:
+//       return {
+//         x: currentPoint.x - 1,
+//         y: currentPoint.y,
+//       };
+//
+//     case Direction.RIGHT:
+//       return {
+//         x: currentPoint.x + 1,
+//         y: currentPoint.y,
+//       };
+//
+//     case Direction.DOWN:
+//       return {
+//         x: currentPoint.x,
+//         y: currentPoint.y - 1,
+//       };
+//   }
+// };
 
 // *****************************************
 
@@ -296,22 +297,45 @@ const arrayOfNumberChunks = chunkArray([1, 2, 3, 4, 5], 2);
 const arrayOfStringChunks = chunkArray(['a', 'b', 'c', 'd', 'e'], 2);
 
 
-type AppleFruit = {
-  weight: 100,
+type AppleFruit0 = {
+  weight: number;
   color: string;
-  size: "small" | "large"
+  size: "small" | "large";
 }
 
-type OrangeFruit = {
-  weight: 150,
+class AppleFruit extends Object {
+  weight: number;
+  color: string;
+  size: "small" | "large";
+}
+
+interface OrangeFruit extends Object {
+  weight: number;
   isRipe: boolean;
   count: number;
 }
 
-function describeFruit(fruit: AppleFruit | OrangeFruit) {
-  console.log(fruit.weight);
-  if ('color' in fruit) {
-    console.log(fruit.color);
-    console.log(fruit.size);
+function describeFruit(fruit: OrangeFruit | AppleFruit): void {
+  // console.log(fruit.weight);
+  // if ('color' in fruit) {
+  //   console.log(fruit.color);
+  //   console.log(fruit.size);
+  // }
+  if (typeof (fruit as AppleFruit)?.size === 'string') {
+    console.log((fruit as AppleFruit)?.size.toUpperCase());
   }
+
+  // if (fruit.hasOwnProperty('count')) {
+  // if (fruit.hasOwnProperty('count')) {
+  //   console.log((fruit as OrangeFruit).count);
+  // }
 }
+
+const myFruit = {
+  weight: 123,
+  isRipe: true,
+  count: 10,
+};
+// myFruit.color = 'green';
+// myFruit.weight = 180;
+describeFruit(myFruit);

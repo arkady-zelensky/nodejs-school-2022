@@ -9,14 +9,14 @@ const book = {
       keys: Object.keys(book),
       // так как метод async, результат оборачивается в промис
       async next() {
-        await new Promise(res => setTimeout(res, 200 * current));
+        await new Promise(res => setTimeout(res, 400 * current));
         if (current < this.keys.length) {
           return {
             done: false,
             value: this.keys[current++]
           };
         }
-        return {done: true};
+        return { done: true };
       }
     }
   }
