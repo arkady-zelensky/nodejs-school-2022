@@ -1,14 +1,16 @@
 {
   "compilerOptions": {
     "module": "CommonJS",
-    "target": "es6",
-    "sourceMap": true,
     "esModuleInterop": true,
-    "moduleResolution": "Node",
-    "outDir": ".build",
+    "target": "es6",
+    "moduleResolution": "node",
+    "removeComments": true,
+    "sourceMap": true,
+    "outDir": "dist",
     "rootDir": "demo"
   },
+  "lib": ["es6"],
   "exclude": [
     "node_modules"
-  ],
+  ]
 }

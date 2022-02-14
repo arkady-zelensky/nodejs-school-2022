@@ -9,10 +9,11 @@ console.log(itemId);
 
 
 // New promise-based APIs in Node.js
-import { setTimeout } from 'timers/promises';
+// import { setTimeout } from 'timers/promises';
+import { setTimeout } from 'node:timers/promises';
 
 (async () => {
-  const delayedValue = await setTimeout(3000, '1 minute later');
+  const delayedValue = await setTimeout(3000, '3 seconds later');
 
   console.log(delayedValue);
 })();
@@ -21,7 +22,6 @@ import { setTimeout } from 'timers/promises';
 
 // Cancel async operations with AbortController
 import fetch from "node-fetch";
-import { setTimeout } from 'node:timers/promises';
 
 const cancelTimeout = new AbortController();
 const cancelRequest = new AbortController();
@@ -32,6 +32,7 @@ async function timeout(milliseconds) {
     cancelRequest.abort();
   } catch (error) {
     // Ignore rejections
+    console.log(error);
   }
 }
 

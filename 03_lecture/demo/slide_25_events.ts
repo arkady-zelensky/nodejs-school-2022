@@ -11,8 +11,8 @@ class User extends EventEmitter {
 let moriarty = new User();
 
 // add listener to event 'greet' for the object moriarty
-moriarty.on(eventName, function(data) {
-  console.log(data);
+moriarty.on(eventName, function(data: string) {
+  console.log(data.startsWith('Miss me') ? data + ' no' : data);
 });
 
 moriarty.sayPhrase("Miss me? [1]");
