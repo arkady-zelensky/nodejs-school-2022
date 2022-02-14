@@ -5,3 +5,6 @@
 ### 1. [VCS & Core JS concepts](01_lecture/homework.md)
 
 ### 2. [TypeScript](02_lecture/homework.md)
+
+### 3. [Node.js basics](03_lecture/homework.md)
+
