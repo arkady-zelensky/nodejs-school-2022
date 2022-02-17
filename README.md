@@ -8,3 +8,6 @@
 
 ### 3. [Node.js basics](03_lecture/homework.md)
 
+### 4. [OOP & Software architectures](04_lecture/homework.md)
+
+
