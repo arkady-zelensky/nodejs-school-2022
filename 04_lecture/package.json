@@ -1,0 +1,24 @@
+{
+  "name": "04_lecture",
+  "version": "1.0.0",
+  "description": "",
+  "directories": {
+    "example": "examples"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "start": " ts-node examples/solid/stage8/app.ts"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^16.9.1",
+    "rimraf": "^3.0.2",
+    "ts-node": "^10.2.1",
+    "typescript": "^4.4.3"
+  },
+  "dependencies": {
+    "axios": "^0.26.0",
+    "puppeteer": "^13.3.2"
+  }
+}
