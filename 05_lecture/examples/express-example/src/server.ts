@@ -32,7 +32,7 @@ export class UsersServer {
   }
 
   initRoutes() {
-    this.app.use("/api/users", usersRouter);
+    this.app.use("/api/v1/users", usersRouter);
   }
 
   initErrorHandling() {
