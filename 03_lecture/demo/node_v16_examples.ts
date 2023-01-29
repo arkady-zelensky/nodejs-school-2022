@@ -3,10 +3,11 @@ import * as crypto from 'crypto';
 
 const itemId = crypto.randomUUID();
 
-console.log(itemId);
+console.log('uuid ----->>>>', itemId);
 
+const hash = crypto.createHash('sha256').update('test string to hash').digest('hex');
 
-
+console.log('hash ----->>>>', hash);
 
 // New promise-based APIs in Node.js
 // import { setTimeout } from 'timers/promises';

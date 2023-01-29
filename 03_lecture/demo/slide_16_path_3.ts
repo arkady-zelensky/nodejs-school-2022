@@ -1,31 +1,26 @@
 import * as path from 'path';
-import * as fs from 'fs';
-import * as util from 'util';
-
-const makeDir = util.promisify(fs.mkdir);
-const writeFile = util.promisify(fs.writeFile);
-const appendFile = util.promisify(fs.appendFile);
-const readFile = util.promisify(fs.readFile);
-const renameFile = util.promisify(fs.rename);
+import { promises as fs } from 'fs';
 
 (async function () {
   // create directory
-  await makeDir(path.join(__dirname, 'test'), {});
+  await fs.mkdir(path.join(__dirname, 'test'), {});
   console.log('Folder created...');
 
   // Create and write to file
-  await writeFile(path.join(__dirname, 'test', 'textfile.txt'), 'Important file data.');
+  await fs.writeFile(path.join(__dirname, 'test', 'textfile.txt'), 'Important file data.');
   console.log('File written to...');
 
   // File append
-  await appendFile(path.join(__dirname, 'test', 'textfile.txt'),' I love Node.js')
+  await fs.appendFile(path.join(__dirname, 'test', 'textfile.txt'),' I love Node.js')
   console.log('File written to...');
 
   // Read file
-  const data = await readFile(path.join(__dirname, 'test', 'textfile.txt'), 'utf8');
+  const data = await fs.readFile(path.join(__dirname, 'test', 'textfile.txt'), 'utf8');
   console.log(data);
 
   // Rename file
-  await renameFile(path.join(__dirname, 'test', 'textfile.txt'), path.join(__dirname, 'test', 'helloworld.txt'));
+  await fs.rename(path.join(__dirname, 'test', 'textfile.txt'), path.join(__dirname, 'test', 'helloworld.txt'));
   console.log('File renamed...');
+
+  await fs.unlink(path.join(__dirname, 'test', 'helloworld.txt'));
 })();

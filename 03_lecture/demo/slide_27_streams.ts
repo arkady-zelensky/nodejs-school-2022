@@ -2,16 +2,16 @@ import * as fs from 'fs';
 import * as zlib from 'zlib';
 
 
-let writeableStream = fs.createWriteStream('streams-text.txt',{encoding: 'utf-8'});
+// let writeableStream = fs.createWriteStream('streams-text.txt',{encoding: 'utf-8'});
 
-writeableStream.write('Hello, world!');
-writeableStream.write(' Continue writing \n');
-writeableStream.end('Writing finished.');
+// writeableStream.write('Hello, world!');
+// writeableStream.write(' Continue writing \n');
+// writeableStream.end('Writing finished.');
 
-writeableStream.on('finish', () => {
-  let data = fs.readFileSync('streams-text.txt', 'utf-8');
-  console.log(data);
-});
+// writeableStream.on('finish', () => {
+//   let data = fs.readFileSync('streams-text.txt', 'utf-8');
+//   console.log(data);
+// });
 
 
 
