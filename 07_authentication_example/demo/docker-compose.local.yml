@@ -1,0 +1,35 @@
+version: "3.7"
+
+services:
+  db:
+    image: postgis/postgis
+    container_name: bla_bla_volunteer
+    restart: on-failure
+    init: true
+    ports:
+      - "5401:5432"
+    volumes:
+      - ./scripts/pg_init:/docker-entrypoint-initdb.d
+    environment:
+      POSTGRES_USER: bla_bla_volunteer
+      POSTGRES_PASSWORD: qwerty
+      POSTGRES_MULTIPLE_DATABASES: bla_bla_volunteer,bla_bla_volunteer_test
+      POSTGRES_HOST_AUTH_METHOD: password
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1m"
+        max-file: "10"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bla_bla_volunteer"]
+      interval: 20s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+  redis:
+    image: redis:alpine
+    container_name: bla_bla_volunteer_redis
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+    ports:
+      - "6376:6379"
