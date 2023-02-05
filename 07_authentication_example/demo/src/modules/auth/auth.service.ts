@@ -7,7 +7,7 @@ import {
   NotFoundException,
 } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { UserEntity } from "../users/db/user.entity";
+import { UserEntity, UserRelations } from "../users/db/user.entity";
 import { UsersRepository } from "../users/db/users.repository";
 import { SignInDto } from "./dto/sign-in.dto";
 import * as bcrypt from "bcryptjs";
@@ -25,6 +25,8 @@ import { SignUpDto } from "./dto/sign-up.dto";
 import { SendResetPasswordLinkDto } from "./dto/send-reset-password-link.dto";
 import { ResetPasswordCodesRepository } from "./reset-password-codes.repository";
 import { ResetPasswordDto } from "./dto/reset-password.dto";
+import { Permissions } from "src/shared/permissions/permissions";
+import { PermissionEntity } from "../permissions/db/permission.entity";
 
 @Injectable()
 export class AuthService {
@@ -58,7 +60,10 @@ export class AuthService {
   async signIn(dto: SignInDto): Promise<SignInSerializer> {
     const { email, password } = dto;
 
-    const user = await this.usersRepository.findOne({ email });
+    const user = await this.usersRepository.findOne(
+      { email },
+      { relations: [UserRelations.PERMISSIONS] }
+    );
     if (!user) {
       throw new NotFoundException(`User with email '${email}' not found`);
     }
@@ -68,7 +73,7 @@ export class AuthService {
       throw new ForbiddenException("Password is wrong");
     }
 
-    return { user, tokens: this.generateTokens(user.id) };
+    return { user, tokens: this.generateTokens(user.id, [], user.permissions) };
   }
 
   async refreshTokens(dto: RefreshTokenDto): Promise<TokensSerializer> {
@@ -85,7 +90,7 @@ export class AuthService {
       this.getRevokedTokenTtl(payload.exp)
     );
 
-    return this.generateTokens(payload.uid);
+    return this.generateTokens(payload.uid, payload.permissions);
   }
 
   async signOut(dto: RefreshTokenDto) {
@@ -139,17 +144,27 @@ export class AuthService {
     await this.resetPasswordCodesRepository.deleteCodes(user.id);
   }
 
-  private generateTokens(userId: string): TokensSerializer {
+  private generateTokens(
+    userId: string,
+    permissions: Permissions[],
+    permissionEntities: PermissionEntity[] = []
+  ): TokensSerializer {
+    if (permissionEntities.length) {
+      permissions.push(...permissionEntities.map((p) => p.name));
+    }
+
     const pairId = uuid.v4();
     const accessPayload: JwtPayload = {
       uid: userId,
       type: JwtTypes.ACCESS,
       pairId,
+      permissions,
     };
     const refreshPayload: JwtPayload = {
       uid: userId,
       type: JwtTypes.REFRESH,
       pairId,
+      permissions,
     };
 
     const accessToken = jwt.sign(accessPayload, this.jwtConf.secret, {

@@ -1,6 +1,6 @@
-import { registerAs } from '@nestjs/config';
-import { IsInt, IsString } from 'class-validator';
-import { validateConfig } from './validate-config';
+import { registerAs } from "@nestjs/config";
+import { IsInt, IsString } from "class-validator";
+import { validateConfig } from "./validate-config";
 
 export class RedisConfig {
   @IsString()
@@ -13,7 +13,7 @@ export class RedisConfig {
   db: number;
 }
 
-const configKey = 'redis';
+const configKey = "redis";
 
 export const redisConfig = registerAs(configKey, () => {
   return validateConfig<RedisConfig>(configKey, RedisConfig, {

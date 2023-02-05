@@ -1,4 +1,4 @@
-import { PermissionEntity } from 'src/modules/permissions/db/permission.entity';
+import { PermissionEntity } from "src/modules/permissions/db/permission.entity";
 import {
   Column,
   Entity,
@@ -8,15 +8,15 @@ import {
   OneToMany,
   ManyToMany,
   JoinTable,
-} from 'typeorm';
-import { ContactEntity } from '../../contacts/db/contact.entity';
+} from "typeorm";
+import { ContactEntity } from "../../contacts/db/contact.entity";
 
-@Entity('users')
+@Entity("users")
 export class UserEntity {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedColumn("uuid")
   id: string;
 
-  @Column({ default: '' })
+  @Column({ default: "" })
   nickname: string;
 
   @Column({ unique: true })
@@ -29,7 +29,7 @@ export class UserEntity {
   contacts: ContactEntity[];
 
   @ManyToMany(() => PermissionEntity)
-  @JoinTable({ name: 'user_permissions' })
+  @JoinTable({ name: "user_permissions" })
   permissions: PermissionEntity[];
 
   @CreateDateColumn()
@@ -37,4 +37,8 @@ export class UserEntity {
 
   @UpdateDateColumn()
   updatedAt: Date;
+}
+
+export enum UserRelations {
+  PERMISSIONS = "permissions",
 }

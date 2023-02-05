@@ -1,3 +1,4 @@
+import { Permissions } from "src/shared/permissions/permissions";
 import {
   Column,
   CreateDateColumn,
@@ -12,7 +13,7 @@ export class PermissionEntity {
   id: string;
 
   @Column()
-  name: string;
+  name: Permissions;
 
   @CreateDateColumn()
   createdAt: Date;

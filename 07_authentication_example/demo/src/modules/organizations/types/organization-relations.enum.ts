@@ -1,6 +1,4 @@
 export enum OrganizationRelations {
-  CONTACT_ACCESS = 'contact_access',
-  SETTLEMENT = 'settlement',
-  SETTLEMENT_ONLY = 'settlement_only',
-  CONTACTS = 'contacts',
+  CONTACT_ACCESS = "contact_access",
+  CONTACTS = "contacts",
 }

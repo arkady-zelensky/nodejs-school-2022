@@ -20,7 +20,7 @@ function setupSwagger(app: INestApplication) {
   }
 
   const options = new DocumentBuilder()
-    .setTitle('Bla-Bla Volunteering Microservice')
+    .setTitle('Auth Example Microservice')
     .addBearerAuth()
     .build();
   const document = SwaggerModule.createDocument(app, options);
