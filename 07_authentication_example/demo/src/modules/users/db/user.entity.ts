@@ -1,4 +1,4 @@
-import { PermissionEntity } from "src/modules/permissions/db/permission.entity";
+import { RoleEntity } from "src/modules/permissions/db/role.entity";
 import {
   Column,
   Entity,
@@ -22,15 +22,21 @@ export class UserEntity {
   @Column({ unique: true })
   email: string;
 
+  @Column({ default: false })
+  emailVerified: boolean;
+
+  @Column({ default: false })
+  twoFaEnabled: boolean;
+
   @Column()
   passwordHash: string;
 
   @OneToMany(() => ContactEntity, (c) => c.user)
   contacts: ContactEntity[];
 
-  @ManyToMany(() => PermissionEntity)
-  @JoinTable({ name: "user_permissions" })
-  permissions: PermissionEntity[];
+  @ManyToMany(() => RoleEntity)
+  @JoinTable({ name: "user_roles" })
+  roles: RoleEntity[];
 
   @CreateDateColumn()
   createdAt: Date;
@@ -40,5 +46,6 @@ export class UserEntity {
 }
 
 export enum UserRelations {
-  PERMISSIONS = "permissions",
+  ROLES = "roles",
+  ROLES_PERMISSIONS = "roles.permissions",
 }

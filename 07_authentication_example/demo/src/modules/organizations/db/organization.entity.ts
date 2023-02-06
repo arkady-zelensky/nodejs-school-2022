@@ -35,9 +35,6 @@ export class OrganizationEntity {
   imagePath: string;
 
   @Column()
-  settlementId: string;
-
-  @Column()
   createdBy: string;
 
   @OneToMany(() => ContactEntity, (c) => c.organization, {

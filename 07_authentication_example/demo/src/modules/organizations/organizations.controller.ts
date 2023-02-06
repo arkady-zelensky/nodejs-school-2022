@@ -22,8 +22,10 @@ import {
 } from '@nestjs/swagger';
 import { LanguageHeader } from 'src/shared/decorators/language-header.decorator';
 import { Language } from 'src/shared/decorators/language.decorator';
+import { RequiredPermissions } from 'src/shared/decorators/required-permissions.decorator';
 import { UserId } from 'src/shared/decorators/user-id.decorators';
 import { ResponseInterceptor } from 'src/shared/interceptors/response.interceptor';
+import { Permissions } from 'src/shared/permissions/permissions';
 import { JwtGuard } from '../auth/guards/jwt.guard';
 import { OrganizationDto } from './dto/organization.dto';
 import { OrganizationsService } from './organizations.service';
@@ -39,6 +41,7 @@ export class OrganizationsController {
   constructor(private service: OrganizationsService) {}
 
   @Post()
+  @RequiredPermissions(Permissions.ORGANIZATIONS_CREATE)
   @UseInterceptors(new ResponseInterceptor(OrganizationSerializer))
   @ApiOperation({ summary: 'Create organization' })
   @LanguageHeader()
@@ -57,6 +60,7 @@ export class OrganizationsController {
   }
 
   @Get('my')
+  @RequiredPermissions(Permissions.ORGANIZATIONS_READ)
   @UseInterceptors(new ResponseInterceptor(OrganizationsListSerializer))
   @ApiOperation({ summary: 'Get list of currently logged user organizations' })
   @LanguageHeader()
@@ -90,6 +94,7 @@ export class OrganizationsController {
   }
 
   @Put(':id')
+  @RequiredPermissions(Permissions.ORGANIZATIONS_UPDATE)
   @UseInterceptors(new ResponseInterceptor(OrganizationSerializer))
   @ApiOperation({ summary: 'Update organization' })
   @LanguageHeader()

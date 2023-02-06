@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   HttpCode,
+  Param,
   Patch,
   Post,
   UseGuards,
@@ -35,6 +36,8 @@ import { JwtGuard } from "./guards/jwt.guard";
 import { SendResetPasswordLinkDto } from "./dto/send-reset-password-link.dto";
 import { ResetPasswordDto } from "./dto/reset-password.dto";
 import { UserResponseSerializer } from "../users/serializers/user.response.serializer";
+import { ResendVerificationLinkDto } from "./dto/resend-verification-link.dto";
+import { Send2faCodeDto } from "./dto/send-2fa-code.dto";
 
 @Controller("/v1/auth")
 @ApiTags("Auth Controller")
@@ -108,6 +111,37 @@ export class AuthController {
   })
   async getCurrentUser(@UserId() userId: string): Promise<UserSerializer> {
     return this.service.getCurrentUser(userId);
+  }
+
+  @Patch("/verify/:verificationToken")
+  @HttpCode(204)
+  @ApiOperation({ summary: "Verify account" })
+  @ApiNotFoundResponse({ description: "verification info not found" })
+  @ApiNoContentResponse({ description: "Registration succeeded" })
+  async verifyEmail(
+    @Param("verificationToken") verificationToken: string
+  ): Promise<void> {
+    return this.service.verifyEmail(verificationToken);
+  }
+
+  @Patch("resend-verification-link")
+  @HttpCode(204)
+  @ApiOperation({
+    summary: "Resend verification code for finishing sign-up process",
+  })
+  @ApiNotFoundResponse({ description: "User with email not found" })
+  @ApiNoContentResponse({ description: "Code was resend successfully" })
+  async resendVerificationLink(@Body() dto: ResendVerificationLinkDto) {
+    return this.service.resendVerificationLink(dto);
+  }
+
+  @Patch("send-2fa-code")
+  @HttpCode(204)
+  @ApiOperation({ summary: "Send 2FA code" })
+  @ApiNotFoundResponse({ description: "User with email not found" })
+  @ApiNoContentResponse({ description: "Code was resend successfully" })
+  async send2faCode(@Body() dto: Send2faCodeDto) {
+    return this.service.send2faCode(dto);
   }
 
   @Patch("send-reset-password-link")

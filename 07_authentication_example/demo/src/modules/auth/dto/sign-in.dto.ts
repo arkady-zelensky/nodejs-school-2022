@@ -1,5 +1,5 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsOptional, IsString, MinLength } from 'class-validator';
+import { ApiProperty } from "@nestjs/swagger";
+import { IsEmail, IsOptional, IsString, MinLength } from "class-validator";
 
 export class SignInDto {
   @ApiProperty()
@@ -16,4 +16,9 @@ export class SignInDto {
   @IsString()
   @IsOptional()
   recaptchaResponse: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsOptional()
+  emailTwoFaCode: string;
 }

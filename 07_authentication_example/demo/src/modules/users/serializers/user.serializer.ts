@@ -1,7 +1,7 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { Expose, Type } from "class-transformer";
 import { ContactSerializer } from "src/modules/contacts/serializers/contact.serializer";
-import { PermissionSerializer } from "src/modules/permissions/serializers/permission.serializer";
+import { RoleSerializer } from "src/modules/permissions/serializers/role.serializer";
 
 export class UserSerializer {
   @ApiProperty()
@@ -23,6 +23,6 @@ export class UserSerializer {
 
   @ApiProperty()
   @Expose()
-  @Type(() => PermissionSerializer)
-  permissions: PermissionSerializer[];
+  @Type(() => RoleSerializer)
+  roles: RoleSerializer[];
 }

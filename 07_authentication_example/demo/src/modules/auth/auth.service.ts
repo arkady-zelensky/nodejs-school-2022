@@ -5,6 +5,7 @@ import {
   Inject,
   Injectable,
   NotFoundException,
+  PreconditionFailedException,
 } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { UserEntity, UserRelations } from "../users/db/user.entity";
@@ -18,7 +19,6 @@ import { MailingService } from "src/shared/mailing/mailing.service";
 import { TokensSerializer } from "./serializers/tokens.serializer";
 import { JwtConfig, jwtConfig } from "src/config/jwt.config";
 import { JwtPayload, JwtTypes } from "./types/jwt-payload.interface";
-import { SignInSerializer } from "./serializers/sign-in.serializer";
 import { RefreshTokenDto } from "./dto/refresh-tokens.dto";
 import { RevokedTokensRepository } from "./revoked-tokens.repository";
 import { SignUpDto } from "./dto/sign-up.dto";
@@ -26,7 +26,13 @@ import { SendResetPasswordLinkDto } from "./dto/send-reset-password-link.dto";
 import { ResetPasswordCodesRepository } from "./reset-password-codes.repository";
 import { ResetPasswordDto } from "./dto/reset-password.dto";
 import { Permissions } from "src/shared/permissions/permissions";
-import { PermissionEntity } from "../permissions/db/permission.entity";
+import { RoleEntity } from "../permissions/db/role.entity";
+import { VerificationCodesRepository } from "./verification-codes.repository";
+import { convertMinutesToSeconds } from "src/shared/utils";
+import { ResendVerificationLinkDto } from "./dto/resend-verification-link.dto";
+import { TwoFaTypes } from "./types/two-fa-types.enum";
+import { TwoFaCodesRepository } from "./two-fa-codes.repository";
+import { Send2faCodeDto } from "./dto/send-2fa-code.dto";
 
 @Injectable()
 export class AuthService {
@@ -39,7 +45,9 @@ export class AuthService {
     private jwtConf: JwtConfig,
     private mailingService: MailingService,
     private revokedTokensRepository: RevokedTokensRepository,
-    private resetPasswordCodesRepository: ResetPasswordCodesRepository
+    private resetPasswordCodesRepository: ResetPasswordCodesRepository,
+    private verificationCodesRepository: VerificationCodesRepository,
+    private twoFaCodesRepository: TwoFaCodesRepository
   ) {}
 
   async signUp(dto: SignUpDto): Promise<UserEntity> {
@@ -50,22 +58,36 @@ export class AuthService {
       throw new ConflictException(`User with email '${email}' already exists`);
     }
 
-    return this.usersRepository.save({
+    const user = await this.usersRepository.save({
       nickname,
       email,
       passwordHash: await this.getPasswordHash(password),
     });
+
+    const verificationCode = uuid.v4();
+    await this.verificationCodesRepository.setCode(
+      user.id,
+      verificationCode,
+      convertMinutesToSeconds(this.generalConf.verificationCodeExpiresInMinutes)
+    );
+
+    await this.sendVerificationLink(user.email, verificationCode);
+
+    return user;
   }
 
-  async signIn(dto: SignInDto): Promise<SignInSerializer> {
+  async signIn(dto: SignInDto) {
     const { email, password } = dto;
 
     const user = await this.usersRepository.findOne(
       { email },
-      { relations: [UserRelations.PERMISSIONS] }
+      { relations: [UserRelations.ROLES, UserRelations.ROLES_PERMISSIONS] }
     );
     if (!user) {
       throw new NotFoundException(`User with email '${email}' not found`);
+    }
+    if (!user.emailVerified) {
+      throw new PreconditionFailedException("You need to verify email first");
     }
 
     const isPasswordCorrect = await bcrypt.compare(password, user.passwordHash);
@@ -73,7 +95,15 @@ export class AuthService {
       throw new ForbiddenException("Password is wrong");
     }
 
-    return { user, tokens: this.generateTokens(user.id, [], user.permissions) };
+    if (user.twoFaEnabled) {
+      await this.checkTwoFaCode(
+        dto.emailTwoFaCode,
+        TwoFaTypes.EMAIL_CODE,
+        user.id
+      );
+    }
+
+    return { user, tokens: this.generateTokens(user.id, [], user.roles) };
   }
 
   async refreshTokens(dto: RefreshTokenDto): Promise<TokensSerializer> {
@@ -93,6 +123,22 @@ export class AuthService {
     return this.generateTokens(payload.uid, payload.permissions);
   }
 
+  async verifyEmail(verificationCode: string): Promise<void> {
+    const userId = await this.verificationCodesRepository.getUserId(
+      verificationCode
+    );
+    if (!userId) {
+      throw new NotFoundException("Verification info not found");
+    }
+
+    const user = await this.usersRepository.findOne(userId);
+    if (!user) {
+      throw new NotFoundException("Verification info not found");
+    }
+
+    await this.usersRepository.save({ ...user, emailVerified: true });
+  }
+
   async signOut(dto: RefreshTokenDto) {
     const payload: JwtPayload = this.verifyRefreshToken(dto.refreshToken);
 
@@ -109,6 +155,34 @@ export class AuthService {
     }
 
     return user;
+  }
+
+  async send2faCode(dto: Send2faCodeDto) {
+    const user = await this.usersRepository.findOne({ email: dto.email });
+    if (!user) {
+      // ! Do not throw an error if user with such email does not exist
+      return;
+    }
+
+    const codeLength = 6;
+    let code = Math.floor(Math.random() * 1000000).toString();
+    if (code.length < codeLength) {
+      const trailingZeros = new Array(codeLength - code.length)
+        .fill(0)
+        .join("");
+      code = trailingZeros + code;
+    }
+
+    await this.twoFaCodesRepository.setCode(
+      user.id,
+      dto.type,
+      code,
+      convertMinutesToSeconds(this.generalConf.twoFaCodeExpiresInMinutes)
+    );
+
+    if (dto.type === TwoFaTypes.EMAIL_CODE) {
+      await this.mailingService.sendTwoFaCodeEmail(dto.email, code);
+    }
   }
 
   async sendResetPasswordLink({ email }: SendResetPasswordLinkDto) {
@@ -144,13 +218,40 @@ export class AuthService {
     await this.resetPasswordCodesRepository.deleteCodes(user.id);
   }
 
+  async resendVerificationLink({ email }: ResendVerificationLinkDto) {
+    const user = await this.usersRepository.findOne({ email });
+    if (!user) {
+      // ! Do not throw an error if user with such email does not exist
+      return;
+    }
+
+    const verificationCode = uuid.v4();
+    await this.verificationCodesRepository.setCode(
+      user.id,
+      verificationCode,
+      convertMinutesToSeconds(this.generalConf.verificationCodeExpiresInMinutes)
+    );
+
+    await this.sendVerificationLink(email, verificationCode);
+  }
+
+  private async sendVerificationLink(
+    email: string,
+    verificationCode: string
+  ): Promise<void> {
+    const verificationLink = `${this.generalConf.serverUrl}/account/verification/${verificationCode}`;
+    return this.mailingService.sendVerificationEmail(email, verificationLink);
+  }
+
   private generateTokens(
     userId: string,
     permissions: Permissions[],
-    permissionEntities: PermissionEntity[] = []
+    roles: RoleEntity[] = []
   ): TokensSerializer {
-    if (permissionEntities.length) {
-      permissions.push(...permissionEntities.map((p) => p.name));
+    if (roles.length) {
+      roles.forEach((role) => {
+        permissions.push(...role.permissions.map((p) => p.name));
+      });
     }
 
     const pairId = uuid.v4();
@@ -199,6 +300,18 @@ export class AuthService {
     }
 
     return payload;
+  }
+
+  private async checkTwoFaCode(code: string, type: TwoFaTypes, userId: string) {
+    const userIdFromCode = await this.twoFaCodesRepository.getUserId(
+      type,
+      code
+    );
+    if (userId !== userIdFromCode) {
+      throw new GoneException("2FA code does not exist or expired");
+    }
+
+    await this.twoFaCodesRepository.deleteCode(userId, type, code);
   }
 
   private getRevokedTokenTtl(exp: number) {

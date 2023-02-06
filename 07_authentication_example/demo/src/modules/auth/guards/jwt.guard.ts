@@ -11,7 +11,10 @@ import { Request } from "express";
 import * as jwt from "jsonwebtoken";
 import { Observable } from "rxjs";
 import { JwtConfig, jwtConfig } from "src/config/jwt.config";
-import { Permissions, PERMISSIONS_METADATA_LABEL } from "src/shared/permissions/permissions";
+import {
+  Permissions,
+  PERMISSIONS_METADATA_LABEL,
+} from "src/shared/permissions/permissions";
 import { JwtPayload, JwtTypes } from "../types/jwt-payload.interface";
 
 @Injectable()
@@ -50,11 +53,15 @@ export class JwtGuard implements CanActivate {
     }
   }
 
-  private checkPermissions(context: ExecutionContext, permissions: Permissions[]) {
-    const requiredPermissions = this.reflector.get<Permissions[]>(
-      PERMISSIONS_METADATA_LABEL,
-      context.getHandler()
-    );
+  private checkPermissions(
+    context: ExecutionContext,
+    permissions: Permissions[]
+  ) {
+    const requiredPermissions =
+      this.reflector.get<Permissions[]>(
+        PERMISSIONS_METADATA_LABEL,
+        context.getHandler()
+      ) || [];
 
     requiredPermissions.forEach((perm) => {
       if (!permissions.includes(perm)) {

@@ -14,6 +14,8 @@ import { AuthController } from "./auth.controller";
 import { AuthService } from "./auth.service";
 import { ResetPasswordCodesRepository } from "./reset-password-codes.repository";
 import { RevokedTokensRepository } from "./revoked-tokens.repository";
+import { TwoFaCodesRepository } from "./two-fa-codes.repository";
+import { VerificationCodesRepository } from "./verification-codes.repository";
 
 @Module({
   imports: [
@@ -26,6 +28,8 @@ import { RevokedTokensRepository } from "./revoked-tokens.repository";
     MailingService,
     RevokedTokensRepository,
     ResetPasswordCodesRepository,
+    VerificationCodesRepository,
+    TwoFaCodesRepository,
   ],
 })
 export class AuthModule implements NestModule {

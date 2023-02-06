@@ -38,15 +38,6 @@ export class Initial1675530369537 implements MigrationInterface {
       `CREATE TABLE "contact_accesses" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "contactId" uuid NOT NULL, "organizationId" uuid, "userId" uuid, "type" character varying NOT NULL, CONSTRAINT "PK_e0517a0527572d32155c6911dae" PRIMARY KEY ("id"))`
     );
     await queryRunner.query(
-      `CREATE TABLE "user_permissions" ("usersId" uuid NOT NULL, "permissionsId" uuid NOT NULL, CONSTRAINT "PK_95afc35336c4cf91726a781e12b" PRIMARY KEY ("usersId", "permissionsId"))`
-    );
-    await queryRunner.query(
-      `CREATE INDEX "IDX_440db3d6dd15ea8bfb0af41703" ON "user_permissions" ("usersId") `
-    );
-    await queryRunner.query(
-      `CREATE INDEX "IDX_d68e45e4cd82c8fa4730e30cac" ON "user_permissions" ("permissionsId") `
-    );
-    await queryRunner.query(
       `ALTER TABLE "dictionary_localizations" ADD CONSTRAINT "FK_334c0bb0ad7612dcaea086c817a" FOREIGN KEY ("language") REFERENCES "languages"("code") ON DELETE NO ACTION ON UPDATE NO ACTION`
     );
     await queryRunner.query(
@@ -79,21 +70,9 @@ export class Initial1675530369537 implements MigrationInterface {
     await queryRunner.query(
       `ALTER TABLE "contact_accesses" ADD CONSTRAINT "FK_9b905f2932056bba5b6edf7ddc0" FOREIGN KEY ("organizationId") REFERENCES "organizations"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`
     );
-    await queryRunner.query(
-      `ALTER TABLE "user_permissions" ADD CONSTRAINT "FK_440db3d6dd15ea8bfb0af417033" FOREIGN KEY ("usersId") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE`
-    );
-    await queryRunner.query(
-      `ALTER TABLE "user_permissions" ADD CONSTRAINT "FK_d68e45e4cd82c8fa4730e30cacd" FOREIGN KEY ("permissionsId") REFERENCES "permissions"("id") ON DELETE CASCADE ON UPDATE CASCADE`
-    );
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(
-      `ALTER TABLE "user_permissions" DROP CONSTRAINT "FK_d68e45e4cd82c8fa4730e30cacd"`
-    );
-    await queryRunner.query(
-      `ALTER TABLE "user_permissions" DROP CONSTRAINT "FK_440db3d6dd15ea8bfb0af417033"`
-    );
     await queryRunner.query(
       `ALTER TABLE "contact_accesses" DROP CONSTRAINT "FK_9b905f2932056bba5b6edf7ddc0"`
     );
@@ -133,7 +112,6 @@ export class Initial1675530369537 implements MigrationInterface {
     await queryRunner.query(
       `DROP INDEX "public"."IDX_440db3d6dd15ea8bfb0af41703"`
     );
-    await queryRunner.query(`DROP TABLE "user_permissions"`);
     await queryRunner.query(`DROP TABLE "contact_accesses"`);
     await queryRunner.query(`DROP TABLE "organizations"`);
     await queryRunner.query(`DROP TABLE "organization_types"`);
